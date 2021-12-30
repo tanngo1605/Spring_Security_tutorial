@@ -28,6 +28,9 @@ public enum ApplicationUserRoles {
         //add all permission to each role at once.
         Set<GrantedAuthority> permissions = getPermissions().stream()
                 .map(permission -> new SimpleGrantedAuthority(permission.getPermission())).collect(Collectors.toSet());
+
+        //Important: ROLE_+{Rolename} is a defined pattern, must be followed
+        //
         permissions.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
         return permissions;
     }

@@ -63,4 +63,14 @@ public class ApplicationUser implements UserDetails {
     public boolean isEnabled() {
         return isEnabled;
     }
+
+
+    @Override
+    public String toString() {
+        return "ApplicationUser [grantedAuthorities=" + grantedAuthorities + ", isAccountNonExpired="
+                + isAccountNonExpired + ", isAccountNonLocked=" + isAccountNonLocked + ", isCredentialsNonExpired="
+                + isCredentialsNonExpired + ", isEnabled=" + isEnabled + ", password=" + password + ", username="
+                + username + "]";
+    }
+    
 }

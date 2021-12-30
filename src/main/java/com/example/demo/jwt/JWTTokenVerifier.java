@@ -6,6 +6,9 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class JWTTokenVerifier extends OncePerRequestFilter {
+    static Logger logger = LoggerFactory.getLogger(JWTTokenVerifier.class);
     private final SecretKey secretKey;
     private final JWTConfig jwtConfig;
 
@@ -33,15 +37,14 @@ public class JWTTokenVerifier extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        //get the token in the header request
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        // get the token in the header request
 
         String authorizationHeader = request.getHeader(jwtConfig.getAuthorizationHeader());
 
         if (Strings.isNullOrEmpty(authorizationHeader) || !authorizationHeader.startsWith(jwtConfig.getTokenPrefix())) {
-            //reject request
+            // reject request
             filterChain.doFilter(request, response);
             return;
         }
@@ -53,19 +56,17 @@ public class JWTTokenVerifier extends OncePerRequestFilter {
             String username = body.getSubject();
             var authorities = (List<Map<String, String>>) body.get("authorities");
 
-            Set<SimpleGrantedAuthority> simpleGrantedAuthorities = authorities.stream().map(m -> new SimpleGrantedAuthority(m.get("authority")))
-                    .collect(Collectors.toSet());
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    username,
-                    null,
-                    simpleGrantedAuthorities
-            );
+            Set<SimpleGrantedAuthority> simpleGrantedAuthorities = authorities.stream()
+                    .map(m -> new SimpleGrantedAuthority(m.get("authority"))).collect(Collectors.toSet());
+            Authentication authentication = new UsernamePasswordAuthenticationToken(username, null,
+                    simpleGrantedAuthorities);
+            logger.info("Auth Result: " + authentication.toString());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (JwtException e) {
             throw new IllegalStateException("Token not trusted");
         }
-        //like next() in node
+        // like next() in node
         filterChain.doFilter(request, response);
 
     }
