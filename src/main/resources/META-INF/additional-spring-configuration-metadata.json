@@ -1,1 +1,8 @@
-{ "properties": [ ] }
+{
+  "properties": [
+    {
+      "name": "application.jwt.tokenExpirationAfterDays",
+      "type": "java.lang.String",
+      "description": "Description for application.jwt.tokenExpirationAfterDays."
+  }
+] }
